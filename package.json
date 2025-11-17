@@ -1,0 +1,18 @@
+{
+  "name": "projet-backup-manager",
+  "version": "1.0.0",
+  "description": "Système de gestion de sauvegardes de BDD",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
