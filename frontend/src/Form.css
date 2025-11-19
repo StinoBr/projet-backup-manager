@@ -1,0 +1,293 @@
+/* --- Styles de Formulaire Spécifiques (Importés dans App.css) --- */
+
+/* Ajout des variables pour les couleurs de statut de test */
+:root {
+  /* ... (autres variables existantes) */
+  --success-color: #28a745;
+  --success-light: #e2f5e8;
+  --error-color: #dc3545;
+  --error-light: #f8d7da;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --edit-color: #ff6e00; /* Nouvelle couleur pour l'édition/modification */
+}
+
+/* En-tête de section avec bouton Annuler */
+.section-header-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-header-form h2 {
+  /* Réinitialise les marges pour l'alignement */
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+/* Bouton Annuler l'édition */
+.cancel-edit-btn {
+  background: none;
+  border: 1px solid var(--text-light);
+  color: var(--text-light);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.cancel-edit-btn:hover {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group.half-width {
+  flex: 1;
+}
+
+.config-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.required {
+  color: var(--danger-color);
+  margin-left: 2px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--input-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.form-control.disabled {
+  background-color: var(--input-bg-disabled);
+  color: var(--text-light);
+  cursor: not-allowed;
+}
+
+.form-help-text {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* Zone d'aide spéciale (pour le Cron) */
+.form-help-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.form-help-box code {
+  background-color: #e2e6ea;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #333;
+}
+
+.help-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+.help-link:hover {
+  text-decoration: underline;
+}
+
+/* Checkboxes */
+.form-checkbox-container {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.form-checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.form-checkbox-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-checkbox-group input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+
+.form-checkbox-group label {
+  cursor: pointer;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Bouton de soumission */
+.submit-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 0.5rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+
+/* --- Styles du Bouton de Test de Connexion --- */
+
+.test-connection-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.test-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--info-color);
+  color: white;
+  border: none;
+}
+
+.test-btn:hover:not(:disabled) {
+  background-color: #117a8b; /* Darker info */
+}
+
+.test-btn:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Statuts de couleur pour le bouton */
+.test-btn.status-success {
+  background-color: var(--success-color);
+}
+.test-btn.status-failed {
+  background-color: var(--error-color);
+}
+
+/* Messages de statut */
+.test-message {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  width: 100%;
+}
+
+.test-message.status-success {
+  background-color: var(--success-light);
+  color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.test-message.status-failed {
+  background-color: var(--error-light);
+  color: var(--error-color);
+  border-color: var(--error-color);
+}
+
+/* Animation de chargement */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Style pour le bouton Modifier dans la liste */
+.edit-btn {
+  background-color: var(--edit-color);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+  margin-right: 0.5rem;
+}
+.edit-btn:hover {
+  background-color: #d15c00;
+}

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { Info, ExternalLink } from 'lucide-react'; // Assurez-vous d'avoir ces icônes
 
 // État initial du formulaire
 const initialState = {
-  databaseConfigId: '', // Très important
+  databaseConfigId: '',
   schedule: '0 2 * * *', // Par défaut "tous les jours à 2h"
   storagePath: '',
   compression: true,
   enabled: true,
-  // Les types sont fixés pour l'instant (d'après notre modèle BDD)
   backupType: 'full',
   storageType: 'local',
 };
@@ -32,81 +32,126 @@ function BackupJobForm({ configs, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.databaseConfigId) {
-      alert("Veuillez sélectionner une base de données."); // Remplacé par un message non bloquant
+      // Idéalement, utilisez une notification toast ici
+      alert("Veuillez sélectionner une base de données."); 
       return;
     }
     onSubmit(formData);
-    // Optionnel: réinitialiser
-    // setFormData(initialState);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="config-form">
-      {/* Le champ le plus important : la liaison */}
-      <label htmlFor="databaseConfigId">Base de données à sauvegarder :</label>
-      <select 
-        id="databaseConfigId"
-        name="databaseConfigId" 
-        value={formData.databaseConfigId} 
-        onChange={handleChange}
-        required
-      >
-        <option value="">-- Sélectionnez une configuration --</option>
-        {/* On peuple le menu déroulant avec les configs chargées */}
-        {configs.map(config => (
-          <option key={config.id} value={config.id}>
-            {config.name} ({config.dbType})
-          </option>
-        ))}
-      </select>
+    <form onSubmit={handleSubmit} className="config-form improved-form">
       
-      <label htmlFor="schedule">Fréquence (Cron) :</label>
-      <input
-        id="schedule"
-        name="schedule"
-        value={formData.schedule}
-        onChange={handleChange}
-        placeholder="Fréquence (ex: 0 2 * * *)"
-        required
-      />
-      
-      <label htmlFor="storagePath">Chemin de stockage local :</label>
-      <input
-        id="storagePath"
-        name="storagePath"
-        value={formData.storagePath}
-        onChange={handleChange}
-        placeholder="ex: /var/backups/mysql"
-        required
-      />
-      
-      <div className="form-checkbox-group">
-        <label htmlFor="compression">
-          Activer la compression (.zip) :
-        </label>
-        <input
-          id="compression"
-          name="compression"
-          type="checkbox"
-          checked={formData.compression}
+      {/* SÉLECTION DE LA BDD */}
+      <div className="form-group">
+        <label htmlFor="databaseConfigId">Base de données cible <span className="required">*</span></label>
+        <select 
+          id="databaseConfigId"
+          name="databaseConfigId" 
+          value={formData.databaseConfigId} 
           onChange={handleChange}
+          required
+          className="form-control"
+        >
+          <option value="">-- Choisir une configuration --</option>
+          {configs.map(config => (
+            <option key={config.id} value={config.id}>
+              {config.name} ({config.dbType} - {config.databaseName})
+            </option>
+          ))}
+        </select>
+        <p className="form-help-text">La base de données dont vous souhaitez extraire les données.</p>
+      </div>
+      
+      {/* PLANIFICATION CRON */}
+      <div className="form-group">
+        <label htmlFor="schedule">Fréquence (Format Cron) <span className="required">*</span></label>
+        <div className="input-with-icon">
+          <input
+            id="schedule"
+            name="schedule"
+            value={formData.schedule}
+            onChange={handleChange}
+            placeholder="ex: 0 2 * * *"
+            required
+            className="form-control"
+          />
+        </div>
+        <div className="form-help-box">
+          <Info size={16} />
+          <span>
+            Format: <code>Minute Heure Jour Mois JourSemaine</code>. 
+            <br />
+            Exemple: <code>0 2 * * *</code> (Tous les jours à 02h00).
+            <a 
+              href="https://crontab.guru/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="help-link"
+            >
+              Besoin d'aide ? <ExternalLink size={12} />
+            </a>
+          </span>
+        </div>
+      </div>
+      
+      {/* CHEMIN DE STOCKAGE */}
+      <div className="form-group">
+        <label htmlFor="storagePath">Dossier de destination (Local) <span className="required">*</span></label>
+        <input
+          id="storagePath"
+          name="storagePath"
+          value={formData.storagePath}
+          onChange={handleChange}
+          placeholder={window.navigator.platform.includes('Win') ? "C:\\Backups\\MySQL" : "/var/backups/mysql"}
+          required
+          className="form-control"
         />
+        <p className="form-help-text">Chemin absolu sur le serveur où les fichiers seront enregistrés.</p>
       </div>
 
-      <div className="form-checkbox-group">
-        <label htmlFor="enabled">
-          Tâche activée :
-        </label>
-        <input
-          id="enabled"
-          name="enabled"
-          type="checkbox"
-          checked={formData.enabled}
-          onChange={handleChange}
-        />
+      {/* OPTIONS FIXES (Information) */}
+      <div className="form-row">
+        <div className="form-group half-width">
+          <label>Type de sauvegarde</label>
+          <input type="text" value="Complète (Full)" disabled className="form-control disabled" />
+        </div>
+        <div className="form-group half-width">
+          <label>Type de stockage</label>
+          <input type="text" value="Disque Local" disabled className="form-control disabled" />
+        </div>
       </div>
       
-      <button type="submit">Ajouter la Tâche</button>
+      {/* CHECKBOXES */}
+      <div className="form-checkbox-container">
+        <div className="form-checkbox-group">
+          <input
+            id="compression"
+            name="compression"
+            type="checkbox"
+            checked={formData.compression}
+            onChange={handleChange}
+          />
+          <label htmlFor="compression">
+            Compresser le fichier (.zip)
+          </label>
+        </div>
+
+        <div className="form-checkbox-group">
+          <input
+            id="enabled"
+            name="enabled"
+            type="checkbox"
+            checked={formData.enabled}
+            onChange={handleChange}
+          />
+          <label htmlFor="enabled">
+            Activer la tâche immédiatement
+          </label>
+        </div>
+      </div>
+      
+      <button type="submit" className="submit-btn">Créer la Tâche</button>
     </form>
   );
 }

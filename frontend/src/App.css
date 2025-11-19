@@ -1,3 +1,5 @@
+/* --- Importation des styles modulaires --- */
+@import url('./Form.css');
 /* --- Variables de Couleur --- */
 :root {
   --primary-color: #007bff;
@@ -11,6 +13,8 @@
   --container-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   --border-radius: 8px;
 }
+
+
 
 /* --- Styles Globaux --- */
 * {

@@ -1,27 +1,23 @@
 // Importe le modèle Sequelize que nous avons créé
 const { DatabaseConfig } = require('../models');
-// --- MODIFICATION ICI ---
-// Nous n'avons plus besoin de CryptoService ici pour la création,
-// car le modèle (via les hooks) s'en charge.
-// On le garde juste en commentaire pour plus tard.
-// const CryptoService = require('../utils/CryptoService');
+const CryptoService = require('../utils/CryptoService'); 
+const { Client: PgClient } = require('pg'); // Pour tester PostgreSQL
+const mysql = require('mysql2/promise'); // Pour tester MySQL
 
 /**
  * Service pour gérer la logique métier des configurations de BDD.
  */
 class DatabaseConfigService {
 
+  // --- (Méthodes existantes: createConfig, getAllConfigs, getConfigById, updateConfig, deleteConfig) ---
+  
   /**
    * Crée une nouvelle configuration de BDD.
    * @param {object} configData - Les données de la config (name, dbType, host...)
    * @returns {Promise<DatabaseConfig>} La configuration créée
    */
   async createConfig(configData) {
-    // --- MODIFICATION ICI ---
-    // Plus besoin de chiffrer ici.
-    // On passe juste le mot de passe en clair au modèle.
-    // Le hook 'beforeCreate' du modèle va le chiffrer.
-    
+    // ... (Code existant)
     try {
       const newConfig = await DatabaseConfig.create({
         name: configData.name,
@@ -29,18 +25,16 @@ class DatabaseConfigService {
         host: configData.host,
         port: configData.port,
         username: configData.username,
-        password: configData.password, // Le hook s'en charge !
+        password: configData.password, 
         databaseName: configData.databaseName,
       });
       
-      // On ne veut jamais renvoyer le mot de passe (même chiffré) au client
       newConfig.password = undefined; 
       return newConfig;
 
     } catch (error) {
-      console.error("Erreur lors de la création de la config BDD :", error);
-      // Renvoie une erreur plus propre
-      throw new Error("Impossible de créer la configuration. Vérifiez vos données.");
+      console.error("Erreur lors de la création de la tâche:", error);
+      throw error;
     }
   }
 
@@ -50,9 +44,7 @@ class DatabaseConfigService {
    */
   async getAllConfigs() {
     try {
-      // 'scope: "withoutPassword"' serait idéal ici, mais pour l'instant :
       const configs = await DatabaseConfig.findAll({
-        // Ne jamais inclure le mot de passe dans les listes !
         attributes: { exclude: ['password'] }
       });
       return configs;
@@ -70,7 +62,7 @@ class DatabaseConfigService {
   async getConfigById(id) {
     try {
       const config = await DatabaseConfig.findByPk(id, {
-        attributes: { exclude: ['password'] } // Exclure le mot de passe
+        attributes: { exclude: ['password'] }
       });
       
       if (!config) {
@@ -78,13 +70,10 @@ class DatabaseConfigService {
       }
       return config;
     } catch (error) {
-      console.error(`Erreur lors de la récupération de la config ${id} :`, error);
-      throw error; // Renvoie l'erreur (soit "non trouvée", soit BDD)
+      throw error;
     }
   }
 
-  // TODO: Implémenter updateConfig(id, data)
-  
   /**
    * Met à jour une configuration de BDD.
    * @param {string} id - L'UUID de la configuration
@@ -98,26 +87,18 @@ class DatabaseConfigService {
         throw new Error("Configuration non trouvée.");
       }
 
-      // 'updateData' ne contiendra que les champs envoyés.
-      // Si 'password' est présent, le hook 'beforeUpdate' le chiffrera.
-      // Si 'password' n'est pas présent, il ne sera pas touché.
       await config.update(updateData);
 
-      // On recharge pour être sûr (optionnel, mais propre) et on exclut le mot de passe
       const updatedConfig = await DatabaseConfig.findByPk(id, {
         attributes: { exclude: ['password'] }
       });
 
       return updatedConfig;
-
     } catch (error) {
       console.error(`Erreur lors de la mise à jour de la config ${id} :`, error);
-      // Renvoie l'erreur (soit "non trouvée", soit BDD)
       throw error;
     }
   }
-  
-  // TODO: Implémenter deleteConfig(id)
   
   /**
    * Supprime une configuration de BDD.
@@ -131,10 +112,6 @@ class DatabaseConfigService {
         throw new Error("Configuration non trouvée.");
       }
 
-      // TODO: Ajouter une vérification
-      // Avant de supprimer, on devrait vérifier qu'aucun 'BackupJob'
-      // n'utilise cette configuration. Nous l'ajouterons plus tard.
-
       await config.destroy();
       
     } catch (error) {
@@ -142,7 +119,74 @@ class DatabaseConfigService {
       throw error;
     }
   }
+  
+  // --- NOUVELLE MÉTHODE ---
+  /**
+   * Tente d'établir une connexion à une BDD externe en utilisant 
+   * les données fournies (sans les sauvegarder).
+   * @param {object} configData - Les données de connexion
+   * @returns {Promise<void>} Résout en cas de succès, rejette en cas d'échec
+   */
+  async testConnection(configData) {
+    const { dbType, host, port, username, password, databaseName } = configData;
+    let client;
+    
+    try {
+      switch (dbType) {
+        case 'postgres':
+          // Utilise le client pg pour tester la connexion
+          client = new PgClient({
+            user: username,
+            host: host,
+            database: databaseName,
+            password: password,
+            port: port,
+            // Timeout rapide pour éviter de bloquer trop longtemps
+            connectionTimeoutMillis: 5000, 
+            statementTimeout: 5000,
+          });
+          
+          await client.connect();
+          await client.query('SELECT 1'); // Simple requête pour vérifier
+          await client.end();
+          break;
+
+        case 'mysql':
+          // Utilise mysql2/promise
+          const connection = await mysql.createConnection({
+            host: host,
+            user: username,
+            password: password,
+            database: databaseName,
+            port: port,
+            connectTimeout: 5000,
+          });
+
+          await connection.query('SELECT 1'); // Simple requête
+          await connection.end();
+          break;
+
+        default:
+          throw new Error(`Type de BDD non supporté pour le test: ${dbType}`);
+      }
+      
+    } catch (error) {
+      // Ferme la connexion si elle est ouverte et qu'il y a eu une erreur
+      if (client && dbType === 'postgres') {
+        try { await client.end(); } catch (e) {}
+      }
+      console.error(`Erreur de connexion ${dbType}:`, error.message);
+      
+      // Mappe les erreurs génériques en messages compréhensibles
+      const errorMessage = error.message.includes('password') 
+        ? "Mot de passe, utilisateur ou base de données incorrect(s)."
+        : (error.message.includes('timeout') || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED')
+          ? "Impossible de se connecter à l'hôte. Vérifiez l'adresse ou le port."
+          : `Erreur de BDD: ${error.message.substring(0, 100)}`; // Trunque le message
+
+      throw new Error(errorMessage);
+    }
+  }
 }
 
-// Exporte une instance unique du service (Singleton)
 module.exports = new DatabaseConfigService();

@@ -21,4 +21,8 @@ router.put('/:id', DatabaseConfigController.update);
 // DELETE /api/database-configs/:id
 router.delete('/:id', DatabaseConfigController.delete);
 
+// --- NOUVELLE ROUTE : TEST DE CONNEXION ---
+// POST /api/database-configs/test
+router.post('/test', DatabaseConfigController.testConnection);
+
 module.exports = router;

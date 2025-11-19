@@ -57,8 +57,6 @@ class DatabaseConfigController {
     }
   }
 
-  // TODO: Implémenter les méthodes 'update' et 'delete'
-
   /**
    * PUT /api/database-configs/:id
    * Met à jour une configuration de BDD.
@@ -94,6 +92,22 @@ class DatabaseConfigController {
       } else {
         res.status(500).json({ message: error.message });
       }
+    }
+  }
+
+  /**
+   * POST /api/database-configs/test
+   * Tente de connecter à une BDD.
+   */
+  async testConnection(req, res) {
+    try {
+      // Le service va essayer la connexion. S'il y a une erreur, il la lancera.
+      await DatabaseConfigService.testConnection(req.body);
+      // Succès
+      res.json({ success: true, message: "Connexion établie avec succès !" });
+    } catch (error) {
+      // Le service a échoué la connexion, nous renvoyons 400 Bad Request
+      res.status(400).json({ success: false, message: error.message });
     }
   }
 }

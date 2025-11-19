@@ -45,6 +45,13 @@ export const databaseConfigApi = {
    * @param {object} data - Données à mettre à jour
    */
   update: (id, data) => apiClient.put(`/database-configs/${id}`, data),
+
+  /**
+   * TESTE une connexion de base de données.
+   * Appel POST /api/database-configs/test
+   * @param {object} configData - Les données du formulaire
+   */
+  testConnection: (configData) => apiClient.post('/database-configs/test', configData),
 };
 
 /**
