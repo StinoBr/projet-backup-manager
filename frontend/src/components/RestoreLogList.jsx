@@ -30,7 +30,7 @@ const LogStatus = ({ status }) => {
 };
 
 /**
- * Affiche la liste (l'historique) des logs de RESTAURATION.
+ * Affiche la liste (l'historique) des logs de RESTAURATION sous forme de tableau.
  */
 function RestoreLogList({ logs }) {
   if (logs.length === 0) {
@@ -47,30 +47,46 @@ function RestoreLogList({ logs }) {
     return log.config?.name || 'Cible inconnue';
   };
 
+  const hasError = logs.some(log => log.status === 'failed' && log.message);
+
   return (
-    <ul className="log-list">
-      {logs.map((log) => (
-        <li key={log.id} className={`log-item log-item-${log.status}`}>
-          <div className="log-item-header">
-            <strong>
-              Restauration de "{getTargetName(log)}"
-            </strong>
-            <LogStatus status={log.status} />
-          </div>
-          <div className="log-item-body">
-            <small>Cible: {getTargetName(log)}</small>
-            <small>Source: "{getSourceName(log)}"</small>
-            <small>Début: {formatDateTime(log.startTime)}</small>
-            <small>Fin: {formatDateTime(log.endTime)}</small>
-          </div>
-          {log.status === 'failed' && log.message && (
-            <div className="log-item-error">
-              <strong>Erreur:</strong> {log.message}
-            </div>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div className="log-table-container">
+      <table className="log-table">
+        <thead>
+          <tr>
+            <th>BDD Cible</th>
+            <th>Source de la Sauvegarde</th>
+            <th>Statut</th>
+            <th>Début</th>
+            <th>Fin</th>
+            {hasError && <th>Message</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map((log) => (
+            <tr key={log.id} className={`log-row log-row-${log.status}`}>
+              <td data-label="BDD Cible">
+                {getTargetName(log)} ({log.config?.dbType})
+              </td>
+              <td data-label="Source Sauvegarde">
+                {getSourceName(log)} 
+                <small> (Du: {formatDateTime(log.backupLog?.startTime)})</small>
+              </td>
+              <td data-label="Statut">
+                <LogStatus status={log.status} />
+              </td>
+              <td data-label="Début">{formatDateTime(log.startTime)}</td>
+              <td data-label="Fin">{formatDateTime(log.endTime)}</td>
+              {hasError && (
+                <td data-label="Message" className="log-message">
+                  {log.message || '-'}
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

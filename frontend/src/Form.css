@@ -291,3 +291,147 @@
 .edit-btn:hover {
   background-color: #d15c00;
 }
+
+/* --- STYLES DES TABLEAUX D'HISTORIQUE (NOUVEAU) --- */
+
+.log-table-container {
+  overflow-x: auto; /* Permet le défilement horizontal sur les petits écrans */
+  width: 100%;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 800px; /* Force un minimum de largeur pour l'affichage tableau */
+  background-color: #fff;
+  box-shadow: var(--container-shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden; /* Pour les bords arrondis */
+}
+
+.log-table th, .log-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.log-table thead {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.log-table th {
+  font-weight: 600;
+  border: none;
+  position: sticky;
+  top: 0;
+}
+
+.log-table tbody tr:nth-child(odd) {
+  background-color: #f8f9fa;
+}
+
+.log-table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+/* Styles pour les rangées de statut (bordure à gauche) */
+.log-table .log-row {
+  border-left: 5px solid transparent;
+}
+.log-table .log-row-success {
+  border-left-color: var(--success-color);
+}
+.log-table .log-row-failed {
+  border-left-color: var(--error-color);
+}
+.log-table .log-row-running {
+  border-left-color: var(--primary-color);
+}
+
+/* Style spécifique pour le message d'erreur si la colonne est présente */
+.log-table .log-message {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log-table .log-row-failed .log-message {
+  color: var(--error-color);
+  font-weight: 500;
+}
+
+/* Boutons dans le tableau */
+.log-table .restore-btn {
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+/* Cache les labels de données sur grand écran */
+.log-table td::before {
+  display: none;
+}
+
+
+/* Rendre les tableaux responsives sur mobile (empiler les cellules) */
+@media screen and (max-width: 900px) {
+  .log-table {
+    border: 1px solid var(--border-color);
+    min-width: auto;
+    display: block;
+  }
+  
+  .log-table thead {
+    display: none; /* Cache l'en-tête */
+  }
+
+  .log-table tbody, .log-table tr, .log-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .log-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  }
+  
+  /* Révèle les labels de données sur mobile */
+  .log-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: inline-block;
+    width: 150px; /* Largeur fixe pour aligner les labels */
+    color: var(--text-color);
+    padding-right: 1rem;
+  }
+
+  .log-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px dashed #eee;
+  }
+  .log-table td:last-child {
+    border-bottom: none;
+  }
+  
+  .log-table .log-status {
+    display: inline-flex;
+  }
+
+  .log-table .log-row {
+    border-left: none; /* La bordure latérale est moins pertinente ici */
+    /* La couleur peut être appliquée à la bordure supérieure si désiré */
+    border-top: 5px solid transparent; 
+  }
+  .log-table .log-row-success { border-top-color: var(--success-color); }
+  .log-table .log-row-failed { border-top-color: var(--error-color); }
+  .log-table .log-row-running { border-top-color: var(--primary-color); }
+
+  .log-table .log-message {
+    white-space: normal; /* Permet au message d'erreur de s'étendre sur plusieurs lignes */
+    max-width: none;
+  }
+}

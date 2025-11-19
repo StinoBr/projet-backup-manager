@@ -36,8 +36,9 @@ function DatabaseConfigList({ configs, onDelete, onEdit }) {
               <Pencil size={18} /> Modifier
             </button>
 
+            {/* MODIFICATION : Passage de l'ID ET du nom */}
             <button 
-              onClick={() => onDelete(config.id)} 
+              onClick={() => onDelete(config.id, config.name)} 
               className="delete-btn"
               title="Supprimer la configuration"
             >

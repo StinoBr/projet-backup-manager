@@ -52,12 +52,14 @@ function DatabaseConfigPage() {
     }
   };
 
-  const handleDeleteConfig = async (id) => {
+  const handleDeleteConfig = async (id, name) => { // AJOUT de 'name'
     try {
-      // AJOUTER CONFIRMATION ICI (avec Modal si on veut éviter alert())
-      if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette configuration ?")) {
+      // --- AJOUT DE LA CONFIRMATION ---
+      const confirmMessage = `Êtes-vous sûr de vouloir supprimer la configuration "${name}" ? Cette action est irréversible.`;
+      if (!window.confirm(confirmMessage)) {
         return;
       }
+      // --- FIN AJOUT ---
       
       await databaseConfigApi.delete(id);
       setMessage("Configuration supprimée avec succès !");

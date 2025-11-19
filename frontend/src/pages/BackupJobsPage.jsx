@@ -42,8 +42,15 @@ function BackupJobsPage() {
     }
   };
 
-  const handleDeleteJob = async (id) => {
+  const handleDeleteJob = async (id, configName) => { // AJOUT de 'configName'
     try {
+      // --- AJOUT DE LA CONFIRMATION ---
+      const confirmMessage = `Êtes-vous sûr de vouloir supprimer la tâche de sauvegarde pour "${configName}" ? Le planificateur s'arrêtera.`;
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+      // --- FIN AJOUT ---
+
       await backupJobApi.delete(id);
       setMessage("Tâche supprimée avec succès !");
       fetchData(); // Rafraîchit la liste

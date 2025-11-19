@@ -1,5 +1,4 @@
 import React from 'react';
-// --- AJOUT ---
 import { CheckCircle, XCircle, AlertTriangle, Clock, UploadCloud } from 'lucide-react';
 
 // Formate les dates
@@ -11,9 +10,6 @@ const formatDateTime = (isoString) => {
       timeStyle: 'medium',
     });
   } catch (e) {
-    // --- MODIFICATION ICI ---
-    // On utilise la variable 'e' pour que le linter soit content
-    // et pour nous aider à déboguer.
     console.warn('Date invalide dans formatDateTime:', e); 
     return 'Date invalide';
   }
@@ -45,51 +41,64 @@ const LogStatus = ({ status }) => {
 };
 
 /**
- * Affiche la liste (l'historique) des logs de sauvegarde.
+ * Affiche la liste (l'historique) des logs de sauvegarde sous forme de tableau.
  */
-// --- MODIFICATION: Ajout de 'onRestoreClick' ---
 function BackupLogList({ logs, onRestoreClick }) {
   if (logs.length === 0) {
     return <p>L'historique est vide. Aucune sauvegarde n'a encore été exécutée.</p>;
   }
+  
+  const hasError = logs.some(log => log.status === 'failed' && log.message);
 
   return (
-    <ul className="log-list">
-      {logs.map((log) => (
-        <li key={log.id} className={`log-item log-item-${log.status}`}>
-          <div className="log-item-header">
-            <strong>
-              {/* Le backend inclut 'job.config.name' ! */}
-              Sauvegarde de "{log.job?.config?.name || 'Tâche supprimée'}"
-            </strong>
-            <LogStatus status={log.status} />
-          </div>
-          <div className="log-item-body">
-            <small>Début: {formatDateTime(log.startTime)}</small>
-            <small>Fin: {formatDateTime(log.endTime)}</small>
-            <small>Taille: {formatBytes(log.fileSize)}</small>
-            {log.filePath && <small>Fichier: {log.filePath}</small>}
-          </div>
-          {log.status === 'failed' && log.message && (
-            <div className="log-item-error">
-              <strong>Erreur:</strong> {log.message}
-            </div>
-          )}
-          {/* --- AJOUT DU BOUTON RESTAURER --- */}
-          {log.status === 'success' && (
-            <div className="log-item-actions">
-              <button 
-                className="restore-btn"
-                onClick={() => onRestoreClick(log)}
-              >
-                <UploadCloud size={16} /> Restaurer
-              </button>
-            </div>
-          )}
-          {/* --- FIN DE L'AJOUT --- */}
-        </li>
-      ))}
-    </ul>
+    <div className="log-table-container">
+      <table className="log-table">
+        <thead>
+          <tr>
+            <th>BDD Source</th>
+            <th>Statut</th>
+            <th>Début</th>
+            <th>Fin</th>
+            <th>Taille</th>
+            <th>Fichier / Chemin</th>
+            {hasError && <th>Message</th>}
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map((log) => (
+            <tr key={log.id} className={`log-row log-row-${log.status}`}>
+              <td data-label="BDD Source">
+                {log.job?.config?.name || 'Tâche supprimée'}
+              </td>
+              <td data-label="Statut">
+                <LogStatus status={log.status} />
+              </td>
+              <td data-label="Début">{formatDateTime(log.startTime)}</td>
+              <td data-label="Fin">{formatDateTime(log.endTime)}</td>
+              <td data-label="Taille">{formatBytes(log.fileSize)}</td>
+              <td data-label="Chemin">{log.filePath || 'N/A'}</td>
+              {hasError && (
+                <td data-label="Message" className="log-message">
+                  {log.message ? log.message : '-'}
+                </td>
+              )}
+              <td data-label="Action" className="log-action">
+                {log.status === 'success' && (
+                  <button 
+                    className="restore-btn"
+                    onClick={() => onRestoreClick(log)}
+                  >
+                    <UploadCloud size={16} /> Restaurer
+                  </button>
+                )}
+                {log.status !== 'success' && '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
